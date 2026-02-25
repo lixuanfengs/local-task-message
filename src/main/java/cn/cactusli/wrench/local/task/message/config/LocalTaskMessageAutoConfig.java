@@ -1,9 +1,17 @@
 package cn.cactusli.wrench.local.task.message.config;
 
+import cn.cactusli.wrench.local.task.message.infrastructure.gateway.GenericHttpGateway;
+import okhttp3.ConnectionPool;
+import okhttp3.OkHttpClient;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author 仙人球⁶ᴳ |
@@ -20,5 +28,28 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "cn.cactusli.wrench.local.task.message.trigger.*"
 })
 public class LocalTaskMessageAutoConfig {
+
+    @Bean
+    public OkHttpClient okHttpClient() {
+        ConnectionPool pool = new ConnectionPool(10, 5, TimeUnit.MINUTES);
+        return new OkHttpClient.Builder()
+                .connectionPool(pool)
+                .retryOnConnectionFailure(true)
+                .connectTimeout(100, TimeUnit.SECONDS)
+                .readTimeout(300, TimeUnit.SECONDS)
+                .writeTimeout(300, TimeUnit.SECONDS)
+                .build();
+    }
+
+    @Bean
+    public GenericHttpGateway genericHttpGateway(OkHttpClient okHttpClient) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("http://127.0.0.1/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(okHttpClient)
+                .build();
+        return retrofit.create(GenericHttpGateway.class);
+    }
+
 
 }

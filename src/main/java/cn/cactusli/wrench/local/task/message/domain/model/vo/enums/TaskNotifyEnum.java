@@ -24,4 +24,19 @@ public enum TaskNotifyEnum {
     private String strategy;
     private String desc;
 
+    public static TaskNotifyEnum of(String type) {
+        if (type == null) return null;
+        for (TaskNotifyEnum value : TaskNotifyEnum.values()) {
+            if (value.getType() != null && value.getType().equalsIgnoreCase(type)) {
+                return value;
+            }
+        }
+        return null;
+    }
+
+    public static String getStrategyByType(String type) {
+        TaskNotifyEnum e = of(type);
+        return e == null ? null : e.getStrategy();
+    }
+
 }
