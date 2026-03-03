@@ -1,35 +1,17 @@
-package cn.cactusli.wrench.local.task.message.domain.adapter.repository;
+package cn.cactusli.wrench.local.task.message.domain.service;
 
 import cn.cactusli.wrench.local.task.message.domain.model.entity.TaskMessageEntityCommand;
 
 import java.util.List;
 
 /**
- * 本地任务消息仓储接口
+ * 数据服务接口
  *
  * @author 仙人球⁶ᴳ |
- * @date 2026/2/2 18:05
+ * @date 2026/3/2 15:57
  * @github https://github.com/lixuanfengs
  */
-public interface ILocalTaskMessageRepository {
-
-    /**
-     * 保存任务消息
-     * @param command 任务消息实体命令
-     */
-    void saveTaskMessage(TaskMessageEntityCommand command) throws Exception;
-
-    /**
-     * 更新任务状态为成功
-     * @param taskId 任务ID
-     */
-    void updateTaskStatusToSuccess(String taskId);
-
-    /**
-     * 更新任务状态为失败
-     * @param taskId 任务ID
-     */
-    void updateTaskStatusToFailed(String taskId);
+public interface ILocalTaskMessageDataService {
 
     /**
      * 根据门牌号查询任务消息列表
@@ -46,7 +28,5 @@ public interface ILocalTaskMessageRepository {
      * @return 最小ID，如果没有找到则返回null
      */
     Long selectMinIdByHouseNumber(List<Integer> houseNumbers);
-
-
-
+    
 }

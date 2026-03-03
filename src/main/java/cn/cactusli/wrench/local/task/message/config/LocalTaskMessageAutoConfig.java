@@ -3,11 +3,13 @@ package cn.cactusli.wrench.local.task.message.config;
 import cn.cactusli.wrench.local.task.message.infrastructure.gateway.GenericHttpGateway;
 import okhttp3.ConnectionPool;
 import okhttp3.OkHttpClient;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -22,6 +24,8 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 @EnableAsync
 @EnableScheduling
+@EnableConfigurationProperties(value = {
+        LocalTaskMessageAutoProperties.class})
 @ComponentScan(basePackages = {
         "cn.cactusli.wrench.local.task.message.domain.*",
         "cn.cactusli.wrench.local.task.message.infrastructure.*",
@@ -51,5 +55,13 @@ public class LocalTaskMessageAutoConfig {
         return retrofit.create(GenericHttpGateway.class);
     }
 
+    @Bean("taskMessageScheduler")
+    public ThreadPoolTaskScheduler taskMessageScheduler() {
+        ThreadPoolTaskScheduler scheduler = new ThreadPoolTaskScheduler();
+        scheduler.setPoolSize(2);
+        scheduler.setThreadNamePrefix("TaskMessageScheduler-");
+        scheduler.initialize();
+        return scheduler;
+    }
 
 }

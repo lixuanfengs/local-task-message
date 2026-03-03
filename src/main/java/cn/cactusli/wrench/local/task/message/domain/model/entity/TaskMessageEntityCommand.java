@@ -16,6 +16,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class TaskMessageEntityCommand {
 
+    private Long id;
+
     /**
      * 任务ID
      */

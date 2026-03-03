@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author 仙人球⁶ᴳ |
@@ -56,5 +58,89 @@ public class LocalTaskMessageRepository implements ILocalTaskMessageRepository {
             log.error("保存任务消息失败，taskId: {} {}", command.getTaskId(), JSON.toJSONString(command), e);
             throw e;
         }
+    }
+
+    @Override
+    public void updateTaskStatusToSuccess(String taskId) {
+        try {
+            // 状态 2 表示已完成
+            int result = taskMessageDao.updateStatusByTaskId(taskId, 2);
+            if (result > 0) {
+                log.info("更新任务状态为成功，taskId: {}", taskId);
+            } else {
+                log.warn("更新任务状态为成功失败，未找到对应任务，taskId: {}", taskId);
+            }
+        } catch (Exception e) {
+            log.error("更新任务状态为成功失败，taskId: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public void updateTaskStatusToFailed(String taskId) {
+        try {
+            // 状态 3 表示失败
+            int result = taskMessageDao.updateStatusByTaskId(taskId, 3);
+            if (result > 0) {
+                log.info("更新任务状态为失败，taskId: {}", taskId);
+            } else {
+                log.warn("更新任务状态为失败失败，未找到对应任务，taskId: {}", taskId);
+            }
+        } catch (Exception e) {
+            log.error("更新任务状态为失败失败，taskId: {}", taskId, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public List<TaskMessageEntityCommand> selectByHouseNumber(List<Integer> houseNumbers, Long id, Integer limit) {
+        try {
+            List<TaskMessagePO> poList = taskMessageDao.selectByHouseNumber(houseNumbers, id, limit);
+            List<TaskMessageEntityCommand> result = new ArrayList<>();
+            if (poList == null || poList.isEmpty()) {
+                return result;
+            }
+            for (TaskMessagePO po : poList) {
+                result.add(convertToCommand(po));
+            }
+            return result;
+        } catch (Exception e) {
+            log.error("根据门牌号查询任务消息列表失败，houseNumbers: {} id: {} limit: {}", houseNumbers, id, limit, e);
+            throw e;
+        }
+    }
+
+    @Override
+    public Long selectMinIdByHouseNumber(List<Integer> houseNumbers) {
+        try {
+            return taskMessageDao.selectMinIdByHouseNumber(houseNumbers);
+        } catch (Exception e) {
+            log.error("根据门牌号查询最小ID失败，houseNumbers: {}", houseNumbers, e);
+            throw e;
+        }
+    }
+
+    /**
+     * 将PO对象转换为领域实体命令
+     */
+    private TaskMessageEntityCommand convertToCommand(TaskMessagePO po) {
+        TaskMessageEntityCommand cmd = new TaskMessageEntityCommand();
+        cmd.setId(po.getId());
+        cmd.setTaskId(po.getTaskId());
+        cmd.setTaskName(po.getTaskName());
+        cmd.setNotifyType(po.getNotifyType());
+        cmd.setStatus(po.getStatus());
+        cmd.setParameterJson(po.getParameterJson());
+
+        if (po.getNotifyConfig() != null) {
+            try {
+                TaskMessageEntityCommand.NotifyConfig notifyConfig = JSON.parseObject(po.getNotifyConfig(), TaskMessageEntityCommand.NotifyConfig.class);
+                cmd.setNotifyConfig(notifyConfig);
+            } catch (Exception e) {
+                log.warn("解析 notifyConfig 失败，taskId:{} notifyConfig:{}", po.getTaskId(), po.getNotifyConfig(), e);
+            }
+        }
+
+        return cmd;
     }
 }
