@@ -1,0 +1,5 @@
+spring:
+  config:
+    name: local-task-message-test
+  profiles:
+    active: dev
