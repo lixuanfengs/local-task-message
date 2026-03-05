@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 @ComponentScan(basePackages = {
         "cn.cactusli.wrench.local.task.message.domain.*",
         "cn.cactusli.wrench.local.task.message.infrastructure.*",
-        "cn.cactusli.wrench.local.task.message.trigger.*"
-})
+        "cn.cactusli.wrench.local.task.message.trigger.*",
+        "cn.cactusli.wrench.local.task.message.config.aop.*"})
 public class LocalTaskMessageAutoConfig {
 
     @Bean
